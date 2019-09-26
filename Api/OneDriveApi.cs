@@ -45,17 +45,12 @@ namespace KoenZomers.OneDrive.Api
         /// <summary>
         /// Authorization token used for requesting tokens
         /// </summary>
-        public string AuthorizationToken { get; private set; }
+        public string AuthorizationToken { get; set; }
 
         /// <summary>
         /// Access Token for communicating with OneDrive
         /// </summary>
-        public OneDriveAccessToken AccessToken { get; protected set; }
-
-        /// <summary>
-        /// Date and time until which the access token should be valid based on the information provided by the oAuth provider
-        /// </summary>
-        public DateTime? AccessTokenValidUntil { get; protected set; }
+        public OneDriveAccessToken AccessToken { get; set; }
 
         /// <summary>
         /// Base URL of the OneDrive API
@@ -167,7 +162,7 @@ namespace KoenZomers.OneDrive.Api
             if (AccessToken != null)
             {
                 // We have an access token, check if its still valid
-                if (AccessTokenValidUntil.HasValue && AccessTokenValidUntil.Value > DateTime.Now)
+                if (AccessToken.ExpiresAt.HasValue && AccessToken.ExpiresAt.Value > DateTime.UtcNow)
                 {
                     // Access token is still valid, use it
                     return AccessToken;
@@ -191,7 +186,7 @@ namespace KoenZomers.OneDrive.Api
 
             // No access token but we have an authorization token, request the access token
             AccessToken = await GetAccessTokenFromAuthorizationToken(AuthorizationToken);
-            AccessTokenValidUntil = DateTime.Now.AddSeconds(AccessToken.AccessTokenExpirationDuration);
+            AccessToken.CreationDate = DateTime.UtcNow;
             return AccessToken;
         }
 
@@ -256,7 +251,7 @@ namespace KoenZomers.OneDrive.Api
                         throw new Exceptions.TokenRetrievalFailedException(message: errorResult.ErrorDescription, errorDetails: errorResult);
                     }
                 }
-            }       
+            }
         }
 
         /// <summary>
@@ -266,7 +261,7 @@ namespace KoenZomers.OneDrive.Api
         public async Task AuthenticateUsingRefreshToken(string refreshToken)
         {
             AccessToken = await GetAccessTokenFromRefreshToken(refreshToken);
-            AccessTokenValidUntil = DateTime.Now.AddSeconds(AccessToken.AccessTokenExpirationDuration);
+            AccessToken.CreationDate = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -890,7 +885,7 @@ namespace KoenZomers.OneDrive.Api
             // Verify which upload method should be used
             if (fileToUpload.Length <= MaximumBasicFileUploadSizeInBytes)
             {
-                // Use the basic upload method                
+                // Use the basic upload method
                 return await UpdateFileViaSimpleUpload(fileToUpload, oneDriveItem);
             }
 
@@ -979,7 +974,7 @@ namespace KoenZomers.OneDrive.Api
             // Verify which upload method should be used
             if (fileToUpload.Length <= MaximumBasicFileUploadSizeInBytes)
             {
-                // Use the basic upload method                
+                // Use the basic upload method
                 return await UploadFileViaSimpleUpload(fileToUpload, fileName, parentFolder);
             }
 
@@ -1018,7 +1013,7 @@ namespace KoenZomers.OneDrive.Api
             // Verify which upload method should be used
             if (fileStream.Length <= MaximumBasicFileUploadSizeInBytes)
             {
-                // Use the basic upload method                
+                // Use the basic upload method
                 return await UploadFileViaSimpleUpload(fileStream, fileName, parentFolder);
             }
 
@@ -1173,7 +1168,7 @@ namespace KoenZomers.OneDrive.Api
         protected virtual async Task<OneDriveItem> CreateFolderInternal(string oneDriveRequestUrl, string folderName)
         {
             // Construct the complete URL to call
-            var completeUrl = ConstructCompleteUrl(oneDriveRequestUrl);            
+            var completeUrl = ConstructCompleteUrl(oneDriveRequestUrl);
 
             // Construct the JSON to send in the POST message
             var newFolder = new OneDriveCreateFolder { Name = folderName, Folder = new object() };
@@ -1357,7 +1352,7 @@ namespace KoenZomers.OneDrive.Api
         /// <param name="oneDriveUrl">The URL to POST the file contents to</param>
         /// <returns>The resulting OneDrive item representing the uploaded file</returns>
         protected async Task<OneDriveItem> UploadFileViaSimpleUploadInternal(Stream fileStream, string oneDriveUrl)
-        { 
+        {
             // Get an access token to perform the request to OneDrive
             var accessToken = await GetAccessToken();
 
@@ -1408,7 +1403,7 @@ namespace KoenZomers.OneDrive.Api
         /// <param name="oneDriveItem">OneDriveItem of the folder to which the file should be uploaded</param>
         /// <returns>The resulting OneDrive item representing the uploaded file</returns>
         public async Task<OneDriveItem> UploadFileViaSimpleUpload(FileInfo file, string fileName, OneDriveItem oneDriveItem)
-        {          
+        {
             // Read the file to upload
             using (var fileStream = file.OpenRead())
             {
@@ -1553,7 +1548,7 @@ namespace KoenZomers.OneDrive.Api
                 // Defines a buffer which will be filled with bytes from the original file and then sent off to the OneDrive webservice
                 var fragmentBuffer = new byte[fragmentSizeInBytes ?? ResumableUploadChunkSizeInBytes];
 
-                // Create an HTTPClient instance to communicate with the REST API of OneDrive to perform the upload 
+                // Create an HTTPClient instance to communicate with the REST API of OneDrive to perform the upload
                 using (var client = CreateHttpClient(accessToken.AccessToken))
                 {
                     // Keep looping through the source file length until we've sent all bytes to the OneDrive webservice
@@ -1807,7 +1802,7 @@ namespace KoenZomers.OneDrive.Api
 
             // Call the OneDrive webservice
             var result = await SendMessageReturnBool(requestBody, HttpMethod.Post, completeUrl, HttpStatusCode.Accepted, true);
-            return result;              
+            return result;
         }
 
         /// <summary>

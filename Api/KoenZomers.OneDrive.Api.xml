@@ -786,11 +786,6 @@
             Access Token for communicating with OneDrive
             </summary>
         </member>
-        <member name="P:KoenZomers.OneDrive.Api.OneDriveApi.AccessTokenValidUntil">
-            <summary>
-            Date and time until which the access token should be valid based on the information provided by the oAuth provider
-            </summary>
-        </member>
         <member name="P:KoenZomers.OneDrive.Api.OneDriveApi.OneDriveApiBaseUrl">
             <summary>
             Base URL of the OneDrive API
@@ -1863,7 +1858,7 @@
             Size of the chunks to upload when using the resumable upload method. Must be a multiple of 327680 bytes. See https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/driveitem_createuploadsession#best-practices
             </summary>
         </member>
-        <member name="P:KoenZomers.OneDrive.Api.OneDriveGraphApi.DefaultScopes">
+        <member name="P:KoenZomers.OneDrive.Api.OneDriveGraphApi.Scopes">
             <summary>
             The default scopes to request access to at the Graph API
             </summary>
@@ -1873,11 +1868,12 @@
             Base URL of the Graph API
             </summary>
         </member>
-        <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.#ctor(System.String)">
+        <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.#ctor(System.String,System.String)">
             <summary>
             Instantiates a new instance of the Graph API
             </summary>
             <param name="applicationId">Microsoft Application ID to use to connect</param>
+            <param name="clientSecret">Microsoft client secret</param>
         </member>
         <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.GetAuthenticationUri">
             <summary>
@@ -1893,30 +1889,11 @@
             <returns>Access token for the Graph API</returns>
             <exception cref="T:KoenZomers.OneDrive.Api.Exceptions.TokenRetrievalFailedException">Thrown when unable to retrieve a valid access token</exception>
         </member>
-        <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.GetAccessTokenFromAuthorizationToken(System.String,System.String[])">
-            <summary>
-            Gets an access token from the provided authorization token
-            </summary>
-            <param name="authorizationToken">Authorization token</param>
-            <param name="scopes">Scopes to request access for</param>
-            <returns>Access token for the Graph API</returns>
-            <exception cref="T:KoenZomers.OneDrive.Api.Exceptions.TokenRetrievalFailedException">Thrown when unable to retrieve a valid access token</exception>
-        </member>
         <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.GetAccessTokenFromRefreshToken(System.String)">
             <summary>
             Gets an access token from the provided refresh token using the default scopes defined in DefaultScopes
             </summary>
             <param name="refreshToken">Refresh token</param>
-            <param name="scopes">Scopes to request access for</param>
-            <returns>Access token for the Graph API</returns>
-            <exception cref="T:KoenZomers.OneDrive.Api.Exceptions.TokenRetrievalFailedException">Thrown when unable to retrieve a valid access token</exception>
-        </member>
-        <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.GetAccessTokenFromRefreshToken(System.String,System.String[])">
-            <summary>
-            Gets an access token from the provided refresh token
-            </summary>
-            <param name="refreshToken">Refresh token</param>
-            <param name="scopes">Scopes to request access for</param>
             <returns>Access token for the Graph API</returns>
             <exception cref="T:KoenZomers.OneDrive.Api.Exceptions.TokenRetrievalFailedException">Thrown when unable to retrieve a valid access token</exception>
         </member>
@@ -1970,7 +1947,7 @@
         <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.AddPermission(KoenZomers.OneDrive.Api.Entities.OneDriveItem,KoenZomers.OneDrive.Api.Entities.OneDrivePermissionRequest)">
             <summary>
             Adds permissions to a OneDrive item
-            </summary>        
+            </summary>
             <param name="item">The OneDrive item to add the permission to</param>
             <param name="permissionRequest">Details of the request for permission</param>
             <returns>Collection with OneDrivePermissionResponse objects representing the granted permissions</returns>
@@ -1978,7 +1955,7 @@
         <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.AddPermission(System.String,KoenZomers.OneDrive.Api.Entities.OneDrivePermissionRequest)">
             <summary>
             Adds permissions to a OneDrive item
-            </summary>        
+            </summary>
             <param name="itemPath">The path to the OneDrive item to add the permission to</param>
             <param name="permissionRequest">Details of the request for permission</param>
             <returns>Collection with OneDrivePermissionResponse objects representing the granted permissions</returns>
@@ -2089,13 +2066,13 @@
             <param name="itemPath">The OneDrive item to retrieve the permissions of</param>
             <returns>Collection with OneDrivePermission objects which indicate the permissions on the item</returns>
         </member>
-        <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.GetAppFolderMetadata">
+        <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.GetAppFolderMetadata(System.String)">
             <summary>
             Gets the AppFolder root its metadata
             </summary>
             <returns>OneDriveItem object with the information about the current App Registration its AppFolder</returns>
         </member>
-        <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.GetAppFolderChildren">
+        <member name="M:KoenZomers.OneDrive.Api.OneDriveGraphApi.GetAppFolderChildren(System.String)">
             <summary>
             Gets the first batch of the files in the AppFolder
             </summary>
